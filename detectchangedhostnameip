@@ -1,0 +1,17 @@
+#!/bin/bash
+# Detect when hostname IP change and report it via e-mail.
+# E-mail variable below can be linux username or any e-mail address. Some servers may reject such incoming mail.
+# To automate the check, chmod +x detectchangedhostnameip and insert new cronjob. If i am root: echo "*/15 * * * * root /bin/sh /root/scripts/detectchangedhostnameip" > /etc/cron.d/detectchangedhostnameip;chmod 644 /etc/cron.d/detectchangedhostnameip
+
+hostname="mail.domain.com"
+email=""
+ipfile="/tmp/hnip"
+oldip="$(cat $ipfile 2>/dev/null)"
+newip="$(dig a +short $hostname)"
+
+if [[ "$oldip" != "" ]];then
+if [[ "$oldip" != "$newip" ]];then
+echo "The hostname $hostname IP changed since last check. Consider updating DNS records?"|mail -s "$(hostname) hostname $hostname IP change" "$email" >/dev/null 2>&1;
+fi
+fi
+echo "$newip" > "$ipfile"
